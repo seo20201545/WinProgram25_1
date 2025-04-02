@@ -1,0 +1,31 @@
+# Visual Studio 관련
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# 빌드 출력
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+*.log
+
+# 패키지
+*.nupkg
+packages/
+
+# 기타 IDE 캐시
+*.dbmdl
+*.VC.db
+
+# 임시 파일
+*.tmp
+*.temp
+*.cache
+*.bak
+
+# macOS or Linux 환경 대응
+.DS_Store
+Thumbs.db
