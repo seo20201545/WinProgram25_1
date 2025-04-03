@@ -1,14 +1,16 @@
 ﻿#include <stdio.h>
 #include <string.h>
 
-typedef struct {
+typedef struct
+{
     int x, y;
     int width, height;
     int colorCode;
     const char* name;
 } WindowBox;
 
-void drawBox(WindowBox box) {
+void drawBox(WindowBox box)
+{
     printf("\033[%dm", box.colorCode);  // 배경 색상 설정
 
     // ┌───┐ 상단 테두리
@@ -18,25 +20,37 @@ void drawBox(WindowBox box) {
     printf("\033[%d;%dH ", box.y, box.x + box.width);
 
     // 제목 영역 (3줄)
-    for (int i = 1; i <= 3; i++) {
+    for (int i = 1; i <= 3; i++)
+    {
         printf("\033[%d;%dH│", box.y + i, box.x);  // 왼쪽 테두리
-        if (i == 1) {
-            // 가운데 줄에 제목 출력 (가운데 정렬)
+
+        if (i == 1)
+        {
+            // 제목 출력 (두 번째 줄)
             int nameLen = strlen(box.name);
             int titleX = box.x + (box.width - nameLen) / 2;
             printf("\033[%d;%dH%s", box.y + i, titleX, box.name);
         }
-        else {
-            // 빈 줄 출력
+        else if (i == 2)
+        {
+            // ✅ 제목 아래줄에 ─로 된 구분선 출력
+            printf("\033[%d;%dH", box.y + i, box.x + 1);
+            for (int j = 0; j < box.width - 2; j++) printf("─");
+        }
+        else
+        {
+            // 빈 줄
             printf("\033[%d;%dH", box.y + i, box.x + 1);
             for (int j = 0; j < box.width - 2; j++) printf(" ");
         }
+
         printf("\033[%d;%dH│", box.y + i, box.x + box.width - 1);  // 오른쪽 테두리
         printf("\033[%d;%dH ", box.y + i, box.x + box.width);
     }
 
     // 내용 영역 (4줄)
-    for (int i = 4; i <= 6; i++) {
+    for (int i = 4; i <= 6; i++)
+    {
         printf("\033[%d;%dH│", box.y + i, box.x);
         printf("\033[%d;%dH", box.y + i, box.x + 1);
         for (int j = 0; j < box.width - 2; j++) printf(" ");
@@ -54,22 +68,25 @@ void drawBox(WindowBox box) {
     printf("\033[0m");
 }
 
-int main() {
+int main()
+{
     int width = 100;
     int height = 30;
 
     // 전체 배경 (초록색)
-    for (int i = 0; i < height; i++) {
+    for (int i = 0; i < height; i++)
+    {
         printf("\033[42m");
-        for (int j = 0; j < width; j++) {
+        for (int j = 0; j < width; j++)
+        {
             printf(" ");
         }
         printf("\033[0m\n");
     }
 
     // 박스 정의 (20x7 고정)
-    WindowBox blueBox = { 10, 3, 20, 7, 44, "      파란창      " };
-    WindowBox redBox = { 15, 5, 20, 7, 41, "      빨간창      " };
+    WindowBox blueBox = { 10, 3, 20, 7, 44, "      고등어      " };
+    WindowBox redBox = { 15, 5, 20, 7, 41, "       연어       " };
 
     // 박스 출력
     drawBox(blueBox);
