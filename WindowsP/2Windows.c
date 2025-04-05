@@ -11,44 +11,37 @@ typedef struct
 
 void drawBox(WindowBox box)
 {
-    printf("\033[%dm", box.colorCode);  // 배경 색상 설정
+    printf("\033[%dm", box.colorCode);
 
-    // ┌───┐ 상단 테두리
     printf("\033[%d;%dH┌", box.y, box.x);
     for (int i = 0; i < box.width - 2; i++) printf("─");
     printf("┐");
     printf("\033[%d;%dH ", box.y, box.x + box.width);
 
-    // 제목 영역 (3줄)
     for (int i = 1; i <= 3; i++)
     {
-        printf("\033[%d;%dH│", box.y + i, box.x);  // 왼쪽 테두리
-
+        printf("\033[%d;%dH│", box.y + i, box.x);
         if (i == 1)
         {
-            // 제목 출력 (두 번째 줄)
             int nameLen = strlen(box.name);
             int titleX = box.x + (box.width - nameLen) / 2;
             printf("\033[%d;%dH%s", box.y + i, titleX, box.name);
         }
         else if (i == 2)
         {
-            // ✅ 제목 아래줄에 ─로 된 구분선 출력
             printf("\033[%d;%dH", box.y + i, box.x + 1);
             for (int j = 0; j < box.width - 2; j++) printf("─");
         }
         else
         {
-            // 빈 줄
             printf("\033[%d;%dH", box.y + i, box.x + 1);
             for (int j = 0; j < box.width - 2; j++) printf(" ");
         }
 
-        printf("\033[%d;%dH│", box.y + i, box.x + box.width - 1);  // 오른쪽 테두리
+        printf("\033[%d;%dH│", box.y + i, box.x + box.width - 1);
         printf("\033[%d;%dH ", box.y + i, box.x + box.width);
     }
 
-    // 내용 영역 (4줄)
     for (int i = 4; i <= 6; i++)
     {
         printf("\033[%d;%dH│", box.y + i, box.x);
@@ -58,13 +51,11 @@ void drawBox(WindowBox box)
         printf("\033[%d;%dH ", box.y + i, box.x + box.width);
     }
 
-    // 하단 테두리
     printf("\033[%d;%dH└", box.y + box.height - 1, box.x);
     for (int i = 0; i < box.width - 2; i++) printf("─");
     printf("┘");
     printf("\033[%d;%dH ", box.y + box.height - 1, box.x + box.width);
 
-    // 초기화
     printf("\033[0m");
 }
 
@@ -73,7 +64,6 @@ int main()
     int width = 100;
     int height = 30;
 
-    // 전체 배경 (초록색)
     for (int i = 0; i < height; i++)
     {
         printf("\033[42m");
@@ -84,15 +74,12 @@ int main()
         printf("\033[0m\n");
     }
 
-    // 박스 정의 (20x7 고정)
     WindowBox blueBox = { 10, 3, 20, 7, 44, "      고등어      " };
     WindowBox redBox = { 15, 5, 20, 7, 41, "       연어       " };
 
-    // 박스 출력
     drawBox(blueBox);
     drawBox(redBox);
 
-    // 디버깅 메시지 아래로 유도
     printf("\033[%d;%dH", height - 1, 1);
     printf("\033[0m\n");
 
