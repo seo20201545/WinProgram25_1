@@ -30,7 +30,7 @@ int main()
         // 드래그 시작 (O 근처 오차범위 내 클릭 허용)
         if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) && !isDragging)
         {
-            if (abs(cursorX - letterX) <= 1 && abs(cursorY - letterY) <= 1)
+            if (abs(cursorX - letterX) <= 2 && abs(cursorY - letterY) <= 2)
             {
                 isDragging = 1;
                 offsetX = cursorX - letterX;
