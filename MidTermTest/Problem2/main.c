@@ -21,7 +21,6 @@ WORD getColorAttribute(int color) {
 void DrawBG(int width, int height) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    // 파란색 바탕화면 (좌우 2칸, 상하 1칸 여백)
     SetConsoleTextAttribute(hConsole, BACKGROUND_BLUE);
     for (int y = 1; y < height - 1; y++) {
         COORD pos = { 2, y };
@@ -31,7 +30,6 @@ void DrawBG(int width, int height) {
         }
     }
 
-    // 회색 작업표시줄 (아래 한 줄)
     SetConsoleTextAttribute(hConsole, BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
     COORD pos = { 2, height - 1 };
     SetConsoleCursorPosition(hConsole, pos);
@@ -39,7 +37,6 @@ void DrawBG(int width, int height) {
         printf(" ");
     }
 
-    // 색상 초기화
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 }
 
@@ -90,12 +87,11 @@ void drawConsoleWindow(int startX, int startY, int width, int height, const char
     SetConsoleTextAttribute(hConsole, BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     printf("X");
 
-    // X 오른쪽 한 칸 채우기 (배경색 동일하게 노란색으로)
+    // X 오른쪽 한 칸 채우기 (배경색 동일하게)
     SetConsoleCursorPosition(hConsole, (COORD) { startX + width - 3, startY + 1 });
     SetConsoleTextAttribute(hConsole, bgColor);
     printf(" ");
 
-    // 색상 복원
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 }
 
@@ -103,18 +99,24 @@ int main() {
     int width = 80;
     int height = 25;
 
-    system("cls"); // 전체 콘솔 초기화
+    system("cls");
 
-    // 1. 배경화면 출력
+    // 배경화면 출력
     DrawBG(width, height);
 
-    // 2. 노란 윈도우 출력 (파란 배경 위에 겹쳐서 표시)
-    drawConsoleWindow(15, 4, 50, 15, "나의 멋진 윈도우", 6);  // color 6 = brown
+    // 노란 윈도우 (갈색)
+    drawConsoleWindow(15, 4, 50, 15, "나의 멋진 윈도우", 6);
 
-    // 3. 디버깅 메시지가 아래쪽에 나오도록 커서 수동 이동
+    // 초록 윈도우
+    drawConsoleWindow(10, 10, 25, 10, "초록 윈도우", 2);
+
+    // 보라 윈도우
+    drawConsoleWindow(30, 6, 30, 12, "보라 윈도우", 5);
+
+    // 디버깅 메시지가 아래쪽에 나오도록 커서 수동 이동
     COORD cursor;
     cursor.X = 0;
-    cursor.Y = height; // 또는 height + 1
+    cursor.Y = height;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor);
 
     return 0;
