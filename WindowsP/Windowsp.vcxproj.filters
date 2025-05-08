@@ -24,5 +24,11 @@
     <ClCompile Include="FileName.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Lapture10.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
