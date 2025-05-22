@@ -1,4 +1,4 @@
-#pragma comment(lib, "Opengl32.lib")
+ï»¿#pragma comment(lib, "Opengl32.lib")
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <time.h>
@@ -15,12 +15,31 @@ void drawCircle(float cx, float cy, float radiusX, float radiusY, int segments, 
     glEnd();
 }
 
-void drawLine(float x1, float y1, float x2, float y2, float width, float r, float g, float b) {
-    glLineWidth(width);
+void drawPolygonLine(float x1, float y1, float x2, float y2, float width, float r, float g, float b) {
+    float dx = x2 - x1;
+    float dy = y2 - y1;
+    float len = sqrtf(dx * dx + dy * dy);
+    if (len == 0) return;
+
+    float nx = -dy / len;
+    float ny = dx / len;
+    float halfWidth = width / 2.0f;
+
+    float px1 = x1 + nx * halfWidth;
+    float py1 = y1 + ny * halfWidth;
+    float px2 = x1 - nx * halfWidth;
+    float py2 = y1 - ny * halfWidth;
+    float px3 = x2 - nx * halfWidth;
+    float py3 = y2 - ny * halfWidth;
+    float px4 = x2 + nx * halfWidth;
+    float py4 = y2 + ny * halfWidth;
+
     glColor3f(r, g, b);
-    glBegin(GL_LINES);
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y2);
+    glBegin(GL_POLYGON);
+    glVertex2f(px1, py1);
+    glVertex2f(px2, py2);
+    glVertex2f(px3, py3);
+    glVertex2f(px4, py4);
     glEnd();
 }
 
@@ -32,7 +51,7 @@ void drawClockMarks(float cx, float cy, float radius, int count, float width, fl
         float y1 = cy + cosf(angle) * (radius - len);
         float x2 = cx + sinf(angle) * radius;
         float y2 = cy + cosf(angle) * radius;
-        drawLine(x1, y1, x2, y2, width, r, g, b);
+        drawPolygonLine(x1, y1, x2, y2, width, r, g, b);
     }
 }
 
@@ -40,7 +59,7 @@ void drawHand(float cx, float cy, float angle, float length, float width, float 
     float rad = -(angle - offsetAngle) * PI / 180.0f;
     float x = cx + cosf(rad) * length;
     float y = cy + sinf(rad) * length;
-    drawLine(cx, cy, x, y, width, r, g, b);
+    drawPolygonLine(cx, cy, x, y, width, r, g, b);
 }
 
 int main() {
@@ -48,7 +67,7 @@ int main() {
     const float CLOCK_RADIUS = 200;
     const float CLOCK_CX = WIDTH / 2.0f;
     const float CLOCK_CY = HEIGHT / 2.0f;
-    const float OFFSET_DEG = 90.0f; // -90µµ È¸Àü È¿°ú
+    const float OFFSET_DEG = 90.0f;
 
     if (!glfwInit()) return -1;
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Clock", NULL, NULL);
@@ -71,32 +90,39 @@ int main() {
         float minute = t->tm_min * 6.0f;
         float second = t->tm_sec * 6.0f;
 
-        // ½Ã°è ¹è°æ
         drawCircle(CLOCK_CX, CLOCK_CY, CLOCK_RADIUS, CLOCK_RADIUS, 100, 1, 1, 1);
-
-        // ½Ã°è ´«±Ý
         drawClockMarks(CLOCK_CX, CLOCK_CY, CLOCK_RADIUS, 60, 2.0f, 0, 0, 0, OFFSET_DEG * PI / 180.0f);
+        drawCircle(CLOCK_CX, CLOCK_CY, 10, 10, 100, 0, 0, 0);
 
-        // ½ÃÄ§, ºÐÄ§
         drawHand(CLOCK_CX, CLOCK_CY, hour, 80, 10, 0, 0, 0, OFFSET_DEG);
         drawHand(CLOCK_CX, CLOCK_CY, minute, 150, 10, 0, 0, 0, OFFSET_DEG);
 
-        // ÃÊ½Ã°è ¹è°æ
-        float subCX = 118 + 50, subCY = 178 + 50;
+        float subCX = 118 + 50;
+        float subCY = 178 + 50 + 50;
         drawCircle(subCX, subCY, 50, 50, 100, 0, 0, 0);
 
-        // ÃÊ½Ã°è ´«±Ý
         for (int i = 0; i < 60; i++) {
-            float angle = -2.0f * PI * i / 60 + PI / 2; // -90µµ È¸Àü
-            float x1 = subCX + cosf(angle) * 40;
-            float y1 = subCY + sinf(angle) * 40;
+            float angle = -2.0f * PI * i / 60 + PI / 2;
+            float len = (i % 5 == 0) ? 10.0f : 5.0f;
+            float x1 = subCX + cosf(angle) * (50 - len);
+            float y1 = subCY + sinf(angle) * (50 - len);
             float x2 = subCX + cosf(angle) * 50;
             float y2 = subCY + sinf(angle) * 50;
-            drawLine(x1, y1, x2, y2, 2, 1, 1, 1);
+            drawPolygonLine(x1, y1, x2, y2, 1, 1, 1, 1);
         }
 
-        // ÃÊÄ§
         drawHand(subCX, subCY, second, 35, 2, 1, 1, 1, OFFSET_DEG);
+
+        // ì¤‘ì‹¬ ê¸°ì¤€ ìœ„ë¡œ 80ë§Œí¼ ë–¨ì–´ì§„ ìœ„ì¹˜ì— ê²€ì •ìƒ‰ ì§ì‚¬ê°í˜• (150x50)
+        float rectX = CLOCK_CX - 75;
+        float rectY = CLOCK_CY - 80 - 25;
+        glColor3f(0, 0, 0);
+        glBegin(GL_QUADS);
+        glVertex2f(rectX, rectY);
+        glVertex2f(rectX + 150, rectY);
+        glVertex2f(rectX + 150, rectY + 50);
+        glVertex2f(rectX, rectY + 50);
+        glEnd();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
