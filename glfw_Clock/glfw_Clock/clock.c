@@ -2,8 +2,75 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <time.h>
+#include <stdio.h>
 
 #define PI 3.14159265358979323846f
+
+void drawRect(float x, float y, float w, float h, float r, float g, float b) {
+    glColor3f(r, g, b);
+    glBegin(GL_QUADS);
+    glVertex2f(x, y);
+    glVertex2f(x + w, y);
+    glVertex2f(x + w, y + h);
+    glVertex2f(x, y + h);
+    glEnd();
+}
+
+void drawSegment(float x, float y, float scale, int segment) {
+    float thickness = scale * 0.1f;
+    float length = scale;
+
+    switch (segment) {
+    case 0: drawRect(x, y + length, length, thickness, 1, 1, 1); break;              // top
+    case 1: drawRect(x + length, y + length, thickness, length, 1, 1, 1); break;     // top-right
+    case 2: drawRect(x + length, y, thickness, length, 1, 1, 1); break;              // bottom-right
+    case 3: drawRect(x, y - thickness, length, thickness, 1, 1, 1); break;           // bottom
+    case 4: drawRect(x - thickness, y, thickness, length, 1, 1, 1); break;           // bottom-left
+    case 5: drawRect(x - thickness, y + length, thickness, length, 1, 1, 1); break;  // top-left
+    case 6: drawRect(x, y + length, length, thickness, 1, 1, 1); break;              // center (redraw top to simplify)
+    }
+}
+
+void drawDigit(float x, float y, float scale, int num) {
+    static const int segments[10][7] = {
+        {1,1,1,1,1,1,0},  // 0
+        {0,1,1,0,0,0,0},  // 1
+        {1,1,0,1,1,0,1},  // 2
+        {1,1,1,1,0,0,1},  // 3
+        {0,1,1,0,0,1,1},  // 4
+        {1,0,1,1,0,1,1},  // 5
+        {1,0,1,1,1,1,1},  // 6
+        {1,1,1,0,0,0,0},  // 7
+        {1,1,1,1,1,1,1},  // 8
+        {1,1,1,1,0,1,1}   // 9
+    };
+    for (int i = 0; i < 7; i++) {
+        if (segments[num][i]) drawSegment(x, y, scale, i);
+    }
+}
+
+void drawColon(float x, float y, float scale) {
+    float size = scale * 0.2f;
+    drawRect(x, y + scale * 0.8f, size, size, 1, 1, 1);
+    drawRect(x, y + scale * 0.2f, size, size, 1, 1, 1);
+}
+
+void drawDigitalClock(int hour, int min, int sec, float startX, float startY, float scale) {
+    int digits[] = {
+        hour / 10, hour % 10,
+        min / 10, min % 10,
+        sec / 10, sec % 10
+    };
+
+    for (int i = 0; i < 6; i++) {
+        float x = startX + i * (scale + 10);
+        if (i == 2 || i == 4) {
+            drawColon(x, startY, scale);
+            x += scale * 0.4f;
+        }
+        drawDigit(x, startY, scale, digits[i]);
+    }
+}
 
 void drawCircle(float cx, float cy, float radiusX, float radiusY, int segments, float r, float g, float b) {
     glColor3f(r, g, b);
@@ -113,16 +180,13 @@ int main() {
 
         drawHand(subCX, subCY, second, 35, 2, 1, 1, 1, OFFSET_DEG);
 
-        // 중심 기준 위로 80만큼 떨어진 위치에 검정색 직사각형 (150x50)
+        // 검은색 직사각형
         float rectX = CLOCK_CX - 75;
         float rectY = CLOCK_CY - 80 - 25;
-        glColor3f(0, 0, 0);
-        glBegin(GL_QUADS);
-        glVertex2f(rectX, rectY);
-        glVertex2f(rectX + 150, rectY);
-        glVertex2f(rectX + 150, rectY + 50);
-        glVertex2f(rectX, rectY + 50);
-        glEnd();
+        drawRect(rectX, rectY, 150, 50, 0, 0, 0);
+
+        // 디지털 시계 출력
+        drawDigitalClock(t->tm_hour, t->tm_min, t->tm_sec, rectX + 5, rectY + 5, 10.0f);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
