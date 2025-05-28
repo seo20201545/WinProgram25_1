@@ -21,28 +21,23 @@ void drawSegment(float x, float y, float scale, int segment) {
     float length = scale;
 
     switch (segment) {
-    case 0: drawRect(x, y + length, length, thickness, 1, 1, 1); break;              // top
-    case 1: drawRect(x + length, y + length, thickness, length, 1, 1, 1); break;     // top-right
-    case 2: drawRect(x + length, y, thickness, length, 1, 1, 1); break;              // bottom-right
-    case 3: drawRect(x, y - thickness, length, thickness, 1, 1, 1); break;           // bottom
-    case 4: drawRect(x - thickness, y, thickness, length, 1, 1, 1); break;           // bottom-left
-    case 5: drawRect(x - thickness, y + length, thickness, length, 1, 1, 1); break;  // top-left
-    case 6: drawRect(x, y + length, length, thickness, 1, 1, 1); break;              // center (redraw top to simplify)
+    case 0: drawRect(x, y + 2 * length, length, thickness, 1, 1, 1); break;
+    case 1: drawRect(x + length, y + length, thickness, length, 1, 1, 1); break;
+    case 2: drawRect(x + length, y, thickness, length, 1, 1, 1); break;
+    case 3: drawRect(x, y - thickness, length, thickness, 1, 1, 1); break;
+    case 4: drawRect(x - thickness, y, thickness, length, 1, 1, 1); break;
+    case 5: drawRect(x - thickness, y + length, thickness, length, 1, 1, 1); break;
+    case 6: drawRect(x, y + length, length, thickness, 1, 1, 1); break;
     }
 }
 
 void drawDigit(float x, float y, float scale, int num) {
     static const int segments[10][7] = {
-        {1,1,1,1,1,1,0},  // 0
-        {0,1,1,0,0,0,0},  // 1
-        {1,1,0,1,1,0,1},  // 2
-        {1,1,1,1,0,0,1},  // 3
-        {0,1,1,0,0,1,1},  // 4
-        {1,0,1,1,0,1,1},  // 5
-        {1,0,1,1,1,1,1},  // 6
-        {1,1,1,0,0,0,0},  // 7
-        {1,1,1,1,1,1,1},  // 8
-        {1,1,1,1,0,1,1}   // 9
+        {1,1,1,1,1,1,0}, {0,1,1,0,0,0,0},
+        {1,1,0,1,1,0,1}, {1,1,1,1,0,0,1},
+        {0,1,1,0,0,1,1}, {1,0,1,1,0,1,1},
+        {1,0,1,1,1,1,1}, {1,1,1,0,0,0,0},
+        {1,1,1,1,1,1,1}, {1,1,1,1,0,1,1}
     };
     for (int i = 0; i < 7; i++) {
         if (segments[num][i]) drawSegment(x, y, scale, i);
@@ -62,11 +57,18 @@ void drawDigitalClock(int hour, int min, int sec, float startX, float startY, fl
         sec / 10, sec % 10
     };
 
+    float digitWidth = scale + scale * 0.1f;
+    float colonWidth = scale * 0.4f;
+    float spacing = 10.0f;
+
+    float totalWidth = digitWidth * 6 + colonWidth * 2 + spacing * 5;
+    float baseX = startX + (150.0f - totalWidth) / 2.0f;
+
     for (int i = 0; i < 6; i++) {
-        float x = startX + i * (scale + 10);
+        float x = baseX + i * (digitWidth + spacing);
         if (i == 2 || i == 4) {
             drawColon(x, startY, scale);
-            x += scale * 0.4f;
+            x += colonWidth;
         }
         drawDigit(x, startY, scale, digits[i]);
     }
@@ -161,9 +163,6 @@ int main() {
         drawClockMarks(CLOCK_CX, CLOCK_CY, CLOCK_RADIUS, 60, 2.0f, 0, 0, 0, OFFSET_DEG * PI / 180.0f);
         drawCircle(CLOCK_CX, CLOCK_CY, 10, 10, 100, 0, 0, 0);
 
-        drawHand(CLOCK_CX, CLOCK_CY, hour, 80, 10, 0, 0, 0, OFFSET_DEG);
-        drawHand(CLOCK_CX, CLOCK_CY, minute, 150, 10, 0, 0, 0, OFFSET_DEG);
-
         float subCX = 118 + 50;
         float subCY = 178 + 50 + 50;
         drawCircle(subCX, subCY, 50, 50, 100, 0, 0, 0);
@@ -178,15 +177,22 @@ int main() {
             drawPolygonLine(x1, y1, x2, y2, 1, 1, 1, 1);
         }
 
-        drawHand(subCX, subCY, second, 35, 2, 1, 1, 1, OFFSET_DEG);
-
         // 검은색 직사각형
         float rectX = CLOCK_CX - 75;
         float rectY = CLOCK_CY - 80 - 25;
-        drawRect(rectX, rectY, 150, 50, 0, 0, 0);
+        drawRect(rectX, rectY, 150, 30, 0, 0, 0);
 
         // 디지털 시계 출력
         drawDigitalClock(t->tm_hour, t->tm_min, t->tm_sec, rectX + 5, rectY + 5, 10.0f);
+
+        // 다크 그레이 시계 바늘 색상
+        float gray = 80.0f / 255.0f;
+        drawHand(CLOCK_CX, CLOCK_CY, hour, 80, 10, gray, gray, gray, OFFSET_DEG);
+        drawHand(CLOCK_CX, CLOCK_CY, minute, 150, 10, gray, gray, gray, OFFSET_DEG);
+        drawCircle(CLOCK_CX, CLOCK_CY, 10, 10, 100, gray, gray, gray);
+
+        // 초시계 초침 (흰색)
+        drawHand(subCX, subCY, second, 35, 2, 1, 1, 1, OFFSET_DEG);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
